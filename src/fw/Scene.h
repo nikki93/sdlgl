@@ -33,27 +33,15 @@ class Scene
 
         // do this in order of expected playback
         // must be on heap due to 'new': will 'delete' later internally
-        inline static void add(Scene *scene)
-        {
-            _scenes.push_back(scene);
-        }
+        static void add(Scene *scene) { _scenes.push_back(scene); }
 
-        inline static void begin()
-        {
-            gotoScene(0);
-        }
-        inline static void shutdown()
-        {
-            _shutdown = true;
-        }
-        inline static void cleanup()
-        {
-            SceneVector::iterator i = _scenes.begin();
-            while (i != _scenes.end())
-                delete *i++;
-        }
+        static void begin() { gotoScene(0); }
+        static void shutdown() { _shutdown = true; }
+        static void cleanup();
 
-        inline static bool updateCurrent(float elapsed)
+        // run scenes
+
+        static bool updateCurrent(float elapsed)
         {
             if (_shutdown)
                 return false;
@@ -62,58 +50,36 @@ class Scene
                 _scenes[_currID]->update(elapsed);
             return true;
         }
-        inline static void drawCurrent()
+        static void drawCurrent()
         {
             if (_currID >= 0)
                 _scenes[_currID]->draw();
         }
-        inline static void stopCurrent()
+        static void stopCurrent()
         {
             if (_currID >= 0)
                 _scenes[_currID]->stop();
         }
-        inline static void handleRequests()
+        static void handleRequests()
         {
             _gotoScene(_requestID); // _gotoScene() checks ID validity
             _requestID = -1;
         }
 
-        // change scene
+        // change scenes
 
         // request
-        inline static void next() // shutdown if last
-        {
-            if (_currID + 1 < _scenes.size())
-                gotoScene(_currID + 1);
-            else
-                shutdown();
-        }
-        inline static void previous()
-        {
-            if (_currID - 1 >= 0)
-                gotoScene(_currID - 1);
-        }
-        inline static void gotoScene(ID id)
-        {
-            _requestID = id;
-        }
+        static void next(); // shutdown if last
+        static void previous();
+        static void gotoScene(ID id);
 
         // immediate
-        inline static void _gotoScene(ID id)
-        {
-            if (id < 0 || id >= _scenes.size()) // bad ID
-                return;
-
-            if (_currID >= 0)
-                _scenes[_currID]->stop();
-            _currID = id;
-            _scenes[_currID]->start();
-        }
+        static void _gotoScene(ID id);
 
         // get data
 
-        inline static ID getCurrentID() { return _currID; }
-        inline static Scene *getCurrentScene() // 0 if not running
+        static ID getCurrentID() { return _currID; }
+        static Scene *getCurrentScene() // 0 if not running
         {
             return _currID >= 0 ? _scenes[_currID] : 0;
         }

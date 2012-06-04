@@ -27,7 +27,7 @@ class Object
 
         // --- object API ---------------------------------------------------
 
-        inline ID getID()
+        ID getID()
         {
             return _id;
         }
@@ -35,7 +35,7 @@ class Object
         // --- manager API --------------------------------------------------
 
         // must be on heap due to 'new': will 'delete' later internally
-        inline static void add(Object *object)
+        static void add(Object *object)
         {
             // if used, make new [XXX: infinite loop if too many objects!]
             while (_objects.find(_newID) != _objects.end())
@@ -44,23 +44,23 @@ class Object
             _objects.insert(std::make_pair(_newID, object));
             object->_id = _newID++;
         }
-        inline static void remove(ID id)
+        static void remove(ID id)
         {
             _toRemove.push_back(id);
         }
-        inline static void removeAll()
+        static void removeAll()
         {
             for (ObjectMap::iterator i = _objects.begin(); 
                     i != _objects.end(); _objects.erase(i++))
                 delete i->second;
         }
 
-        inline static void updateAll(float elapsed)
+        static void updateAll(float elapsed)
         {
             for (ObjectMap::iterator i = _objects.begin(); i != _objects.end(); ++i)
                 i->second->update(elapsed);
         }
-        inline static void drawAll()
+        static void drawAll()
         {
             for (ObjectMap::iterator i = _objects.begin(); i != _objects.end(); ++i)
                 i->second->draw();

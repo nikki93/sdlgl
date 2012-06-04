@@ -10,6 +10,72 @@
 
 #include "RandomParticles.h"
 
+// --- init -----------------------------------------------------------------
+
+// return true if succeeded
+static bool initSDL(int w, int h)
+{
+    // init video
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) 
+    {
+        fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // get bpp
+    const SDL_VideoInfo *info = SDL_GetVideoInfo();
+    if (!info) 
+    {
+        fprintf(stderr, "Video query failed: %s\n", SDL_GetError());
+        return false;
+    }
+    int bpp = info->vfmt->BitsPerPixel;
+
+    // set some GL attributes
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    // set video mode
+    int flags = SDL_OPENGL;
+    if(!SDL_SetVideoMode(w, h, bpp, flags))
+    {
+        fprintf(stderr, "Video mode set failed: %s\n", SDL_GetError());
+        return false;
+    }
+
+    return true;
+}
+
+static void initGL(int w, int h)
+{
+    glShadeModel(GL_SMOOTH);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+
+    glClearColor(0, 0, 0, 0); // black background
+
+    glLoadIdentity();
+    gluOrtho2D(0, w, 0, h);
+}
+
+// --- start ----------------------------------------------------------------
+
+static void startScenes()
+{
+    // add scenes
+    Scene::add(new RandomParticles());
+    Scene::add(new RandomParticles());
+
+    // let's go!
+    Scene::begin();
+}
+
 // --- loop -----------------------------------------------------------------
 
 static void handleEvents()
@@ -82,73 +148,6 @@ static void loop()
             break;
         draw();
     }
-}
-
-// --- init -----------------------------------------------------------------
-
-// return true if succeeded
-static bool initSDL(int w, int h)
-{
-    // init video
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) 
-    {
-        fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
-        return false;
-    }
-
-    // get bpp
-    const SDL_VideoInfo *info = SDL_GetVideoInfo();
-    if (!info) 
-    {
-        fprintf(stderr, "Video query failed: %s\n", SDL_GetError());
-        return false;
-    }
-    int bpp = info->vfmt->BitsPerPixel;
-
-    // set some GL attributes
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    // set video mode
-    int flags = SDL_OPENGL;
-    if(!SDL_SetVideoMode(w, h, bpp, flags))
-    {
-        fprintf(stderr, "Video mode set failed: %s\n", SDL_GetError());
-        return false;
-    }
-
-    return true;
-}
-
-static void initGL(int w, int h)
-{
-    glShadeModel(GL_SMOOTH);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-    glEnable(GL_CULL_FACE);
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-
-    glClearColor(0, 0, 0, 0); // black background
-
-    // put (0, 0) topleft, y downward [gluOrtho2D(0, w, h, 0) didn't work]
-    glLoadIdentity();
-    gluOrtho2D(0, w, 0, h);
-}
-
-// --- start ----------------------------------------------------------------
-
-static void startScenes()
-{
-    // add scenes
-    Scene::add(new RandomParticles());
-    Scene::add(new RandomParticles());
-
-    // let's go!
-    Scene::begin();
 }
 
 // --- stop -----------------------------------------------------------------

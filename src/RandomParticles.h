@@ -11,14 +11,18 @@ class RandomParticles : public Scene
     void start()
     {
         // make many particles :)
-        int n = 200;
-        const float v = 800;
-        const float hV = 0.5 * v;
+        int n = 20000;
+
+        const float v_x = 400;
+        const float hV_x = 0.5 * v_x;
+        const float v_y = 120;
+        const float hV_y = 0.5 * v_y;
+
         while (n--)
         {
             Object::add(new Box(1024*UNIT_RAND(), 768*UNIT_RAND(), // pos
-                        v*UNIT_RAND() - hV, v*UNIT_RAND() - hV, // vel
-                        4*UNIT_RAND() + 2, // size
+                        v_x*UNIT_RAND() - hV_x, v_y*UNIT_RAND() - hV_y, // vel
+                        1*UNIT_RAND() + 0.5, // size
                         UNIT_RAND(), UNIT_RAND(), UNIT_RAND() // color
                         ));
         }

@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+#define UNIT_RAND() (((float) rand()) / RAND_MAX)
+
 class Box : public Object
 {
     protected:
@@ -42,22 +44,32 @@ class Box : public Object
             if (_y < 0)
             {
                 _y = 0;
-                _vy = fabs(_vy);
+                _vy = (UNIT_RAND() * 0.2 + 0.9) * fabs(_vy);
             }
+            /*
             else if (_y > 768)
             {
                 _y = 768;
-                _vy = -fabs(_vy);
+                _vy = -(UNIT_RAND() * 0.2 + 0.9) * fabs(_vy);
             }
+            */
 
             // move
+            _vy -= 1000 * elapsed; // gravity
+
             _x += _vx * elapsed;
             _y += _vy * elapsed;
+
         }
 
         virtual void draw()
         {
-            glColor3f(_colR, _colG, _colB);
+            float colR = _colR * fabs(_y - 384.0)/384.0 + 0.2;
+            float colG = _colG * fabs(_y - 768.0)/768.0 + 0.2;
+            float colB = _colB * fabs(_y)/768.0 + 0.2;
+
+            glColor3f(colR, colG, colB);
+
             glRectf(_x - _halfsize, _y - _halfsize, 
                     _x + _halfsize, _y + _halfsize);
         }
