@@ -49,8 +49,8 @@ class Object
         }
         inline static void removeAll()
         {
-            for (ObjectMap::iterator i = _objects.begin(); i != _objects.end(); 
-                    _objects.erase(i++))
+            for (ObjectMap::iterator i = _objects.begin(); 
+                    i != _objects.end(); _objects.erase(i++))
                 delete i->second;
         }
         static void updateAll(float elapsed);
