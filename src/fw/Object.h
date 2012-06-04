@@ -17,7 +17,7 @@ class Object
         static ID _newID;
 
         // instance
-        ID id;
+        ID _id;
 
     public:
         // --- override -----------------------------------------------------
@@ -29,11 +29,12 @@ class Object
 
         inline ID getID()
         {
-            return id;
+            return _id;
         }
 
         // --- manager API --------------------------------------------------
 
+        // must be on heap due to 'new': will 'delete' later internally
         inline static void add(Object *object)
         {
             // if used, make new [XXX: infinite loop if too many objects!]
@@ -41,7 +42,7 @@ class Object
                 ++_newID;
 
             _objects.insert(std::make_pair(_newID, object));
-            object->id = _newID++;
+            object->_id = _newID++;
         }
         inline static void remove(ID id)
         {
@@ -53,8 +54,18 @@ class Object
                     i != _objects.end(); _objects.erase(i++))
                 delete i->second;
         }
-        static void updateAll(float elapsed);
-        static void drawAll();
+
+        inline static void updateAll(float elapsed)
+        {
+            for (ObjectMap::iterator i = _objects.begin(); i != _objects.end(); ++i)
+                i->second->update(elapsed);
+        }
+        inline static void drawAll()
+        {
+            for (ObjectMap::iterator i = _objects.begin(); i != _objects.end(); ++i)
+                i->second->draw();
+        }
+        static void handleRequests();
 };
 
 #endif

@@ -6,12 +6,13 @@
 #include <cstdlib>
 
 #include "Object.h"
-#include "Box.h"
+#include "Scene.h"
+
+#include "RandomParticles.h"
 
 // --- loop -----------------------------------------------------------------
 
-// return false if exit
-static bool handleEvents()
+static void handleEvents()
 {
     SDL_Event event;
     while(SDL_PollEvent(&event)) // for each event
@@ -22,50 +23,63 @@ static bool handleEvents()
                 switch (event.key.keysym.sym)
                 {
                     case SDLK_ESCAPE:
-                        return false;
+                        Scene::shutdown();
+
+                    case SDLK_n:
+                        Scene::next();
+                    case SDLK_p:
+                        Scene::previous();
                 }
                 break;
 
             case SDL_QUIT:
-                return false;
+                Scene::shutdown();
         }
     }
-
-    return true;
 }
 
-static void update()
+// return false if shutdown
+static bool update()
 {
     // frame timing
     static int lastFrame = 0;
     int currFrame = SDL_GetTicks();
     float elapsed = (currFrame - lastFrame) * 0.001;
     lastFrame = currFrame;
-
-    // wanna see how fast this is
     //printf("%f\n", elapsed);
 
-    // update objects
+    // update everything
+    if (!Scene::updateCurrent(elapsed))
+        return false;
     Object::updateAll(elapsed);
+
+    // handle requests (destroy, next level etc.)
+    Object::handleRequests();
+    Scene::handleRequests();
+
+    return true;
 }
 
 static void draw()
 {
-    // clear first
+    // clear
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // draw objects
+    // draw everything
+    Scene::drawCurrent();
     Object::drawAll();
 
-    // let's see!
+    // see
     SDL_GL_SwapBuffers();
 }
 
 static void loop()
 {
-    while (handleEvents())
+    while (true)
     {
-        update();
+        handleEvents();
+        if (!update())
+            break;
         draw();
     }
 }
@@ -125,30 +139,25 @@ static void initGL(int w, int h)
     gluOrtho2D(0, w, 0, h);
 }
 
-// --- scene ----------------------------------------------------------------
+// --- start ----------------------------------------------------------------
 
-#define UNIT_RAND() (((float) rand()) / RAND_MAX)
-
-// make the scene
-static void start()
+static void startScenes()
 {
-    int n = 200;
-    const float v = 800;
-    const float hV = 0.5 * v;
-    while (n--)
-    {
-        Object::add(new Box(1024*UNIT_RAND(), 768*UNIT_RAND(), // pos
-                    v*UNIT_RAND() - hV, v*UNIT_RAND() - hV, // vel
-                    4*UNIT_RAND() + 2, // size
-                    UNIT_RAND(), UNIT_RAND(), UNIT_RAND() // color
-                    ));
-    }
+    // add scenes
+    Scene::add(new RandomParticles());
+    Scene::add(new RandomParticles());
+
+    // let's go!
+    Scene::begin();
 }
 
 // --- stop -----------------------------------------------------------------
 
 static void stop()
 {
+    Scene::stopCurrent();
+    Scene::cleanup();
+
     SDL_Quit();
 }
 
@@ -163,8 +172,8 @@ int main( int argc, char* argv[] )
         return 1;
     initGL(w, h);
 
-    // make the scene
-    start();
+    // make the initial scene
+    startScenes();
 
     // loop
     loop();
