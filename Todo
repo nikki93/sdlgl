@@ -1,6 +1,5 @@
 framework
 ---------
 
-- write math (vector is an array?), color classes
-- move Scene function implementations to .cpp
+- write some simple color functions
 

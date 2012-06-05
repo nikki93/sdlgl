@@ -14,18 +14,10 @@ void Object::add(Object *object)
     object->_id = _newID++;
 }
 
-void Object::handleRequests()
+void Object::removeAll()
 {
-    // handle scheduled removals
-    while (!_toRemove.empty())
-    {
-        ObjectMap::iterator i;
-        if ((i = _objects.find(_toRemove.back())) != _objects.end())
-        {
-            delete i->second;
-            _objects.erase(i);
-        }
-        _toRemove.pop_back();
-    }
+    for (ObjectMap::iterator i = _objects.begin(); 
+            i != _objects.end(); _objects.erase(i++))
+        delete i->second;
 }
 

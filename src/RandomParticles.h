@@ -1,6 +1,7 @@
 #ifndef __RANDOMPARTICLES_H__
 #define __RANDOMPARTICLES_H__
 
+#include "Math.h"
 #include "Scene.h"
 #include "Box.h"
 
@@ -20,11 +21,12 @@ class RandomParticles : public Scene
 
         while (n--)
         {
-            Object::add(new Box(1024*UNIT_RAND(), 768*UNIT_RAND(), // pos
-                        v_x*UNIT_RAND() - hV_x, v_y*UNIT_RAND() - hV_y, // vel
-                        1*UNIT_RAND() + 0.5, // size
-                        UNIT_RAND(), UNIT_RAND(), UNIT_RAND() // color
-                        ));
+            vec2 pos(1024*UNIT_RAND(), 768*UNIT_RAND());
+            vec2 vel(v_x*UNIT_RAND() - hV_x, v_y*UNIT_RAND() - hV_y);
+            float size = 1*UNIT_RAND() + 0.5;
+            vec3 col(UNIT_RAND(), UNIT_RAND(), UNIT_RAND());
+
+            Object::add(new Box(pos, vel, size, col));
         }
     }
 

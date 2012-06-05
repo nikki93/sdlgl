@@ -26,6 +26,7 @@ package.includepaths = {
     -- project
     "./src",
     "./src/fw",
+    "./src/vmath",
 
     -- libraries
 }

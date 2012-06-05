@@ -31,42 +31,24 @@ class Scene
 
         // manage scenes
 
-        // do this in order of expected playback
-        // must be on heap due to 'new': will 'delete' later internally
-        static void add(Scene *scene) { _scenes.push_back(scene); }
-
-        static void begin() { gotoScene(0); }
-        static void shutdown() { _shutdown = true; }
+        static void add(Scene *scene); // add in order of playback
+        static void begin();
+        static void shutdown();
         static void cleanup();
 
-        // run scenes
+        // run scene
 
-        static bool updateCurrent(float elapsed)
-        {
-            if (_shutdown)
-                return false;
+        static bool updateCurrent(float elapsed);
+        static void drawCurrent();
+        static void stopCurrent();
+        static void handleRequests();
 
-            if (_currID >= 0)
-                _scenes[_currID]->update(elapsed);
-            return true;
-        }
-        static void drawCurrent()
-        {
-            if (_currID >= 0)
-                _scenes[_currID]->draw();
-        }
-        static void stopCurrent()
-        {
-            if (_currID >= 0)
-                _scenes[_currID]->stop();
-        }
-        static void handleRequests()
-        {
-            _gotoScene(_requestID); // _gotoScene() checks ID validity
-            _requestID = -1;
-        }
+        // get scene
 
-        // change scenes
+        static ID getCurrentID();
+        static Scene *getCurrentScene(); // 0 if not running
+
+        // change scene
 
         // request
         static void next(); // shutdown if last
@@ -75,14 +57,61 @@ class Scene
 
         // immediate
         static void _gotoScene(ID id);
-
-        // get data
-
-        static ID getCurrentID() { return _currID; }
-        static Scene *getCurrentScene() // 0 if not running
-        {
-            return _currID >= 0 ? _scenes[_currID] : 0;
-        }
 };
+
+// --- inline definitions ---------------------------------------------------
+
+inline void Scene::add(Scene *scene) 
+{ 
+    _scenes.push_back(scene); 
+}
+
+inline void Scene::begin() 
+{ 
+    gotoScene(0); 
+}
+
+inline void Scene::shutdown() 
+{ 
+    _shutdown = true; 
+}
+
+inline bool Scene::updateCurrent(float elapsed)
+{
+    if (_shutdown)
+        return false;
+
+    if (_currID >= 0)
+        _scenes[_currID]->update(elapsed);
+    return true;
+}
+
+inline void Scene::drawCurrent()
+{
+    if (_currID >= 0)
+        _scenes[_currID]->draw();
+}
+
+inline void Scene::stopCurrent()
+{
+    if (_currID >= 0)
+        _scenes[_currID]->stop();
+}
+
+inline void Scene::handleRequests()
+{
+    _gotoScene(_requestID); // _gotoScene() checks ID validity
+    _requestID = -1;
+}
+
+inline Scene::ID Scene::getCurrentID() 
+{ 
+    return _currID; 
+}
+
+inline Scene *Scene::getCurrentScene()
+{
+    return _currID >= 0 ? _scenes[_currID] : 0;
+}
 
 #endif

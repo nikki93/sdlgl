@@ -27,36 +27,58 @@ class Object
 
         // --- object API ---------------------------------------------------
 
-        ID getID()
-        {
-            return _id;
-        }
+        ID getID();
 
         // --- manager API --------------------------------------------------
 
-        // must be on heap due to 'new': will 'delete' later internally
-        static void add(Object *object);
-        static void remove(ID id) { _toRemove.push_back(id); }
-        static void removeAll()
-        {
-            for (ObjectMap::iterator i = _objects.begin(); 
-                    i != _objects.end(); _objects.erase(i++))
-                delete i->second;
-        }
+        static void add(Object *object); // will 'delete' internally
+        static void remove(ID id);
+        static void removeAll();
 
-        static void updateAll(float elapsed)
-        {
-            for (ObjectMap::iterator i = _objects.begin(); 
-                    i != _objects.end(); ++i)
-                i->second->update(elapsed);
-        }
-        static void drawAll()
-        {
-            for (ObjectMap::iterator i = _objects.begin(); 
-                    i != _objects.end(); ++i)
-                i->second->draw();
-        }
+        static void updateAll(float elapsed);
+        static void drawAll();
         static void handleRequests();
 };
+
+// --- inline definitions ---------------------------------------------------
+
+inline Object::ID Object::getID()
+{
+    return _id;
+}
+
+inline void Object::remove(ID id)
+{ 
+    _toRemove.push_back(id); 
+}
+
+inline void Object::updateAll(float elapsed)
+{
+    for (ObjectMap::iterator i = _objects.begin(); 
+            i != _objects.end(); ++i)
+        i->second->update(elapsed);
+}
+
+inline void Object::drawAll()
+{
+    for (ObjectMap::iterator i = _objects.begin(); 
+            i != _objects.end(); ++i)
+        i->second->draw();
+}
+
+inline void Object::handleRequests()
+{
+    // handle scheduled removals
+    while (!_toRemove.empty())
+    {
+        ObjectMap::iterator i;
+        if ((i = _objects.find(_toRemove.back())) != _objects.end())
+        {
+            delete i->second;
+            _objects.erase(i);
+        }
+        _toRemove.pop_back();
+    }
+}
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef __BOX_H__
 #define __BOX_H__
 
+#include "Math.h"
 #include "Object.h"
 
 #include <cmath>
@@ -10,68 +11,52 @@
 class Box : public Object
 {
     protected:
-        float _x, _y; // center of box
-        float _vx, _vy;
+        vec2 _pos, _vel;
         float _halfsize;
-        float _colR, _colG, _colB;
+        vec3 _col;
 
     public:
         // mess :/
-        Box(float x, float y, 
-                float vx, float vy,
-                float size,
-                float colR, float colG, float colB)
-            : _x(x), _y(y),
-              _vx(vx), _vy(vy),
+        Box(vec2 pos, vec2 vel, float size, vec3 col)
+            : _pos(pos), _vel(vel),
               _halfsize(0.5 * size),
-              _colR(colR), _colG(colG), _colB(colB)
+              _col(col)
         {
         }
 
         virtual void update(float elapsed) 
         {
             // bounce
-            if (_x < 0)
+            if (_pos.x < 0)
             {
-                _x = 0;
-                _vx = fabs(_vx);
+                _pos.x = 0;
+                _vel.x = fabs(_vel.x);
             }
-            else if (_x > 1024)
+            else if (_pos.x > 1024)
             {
-                _x = 1024;
-                _vx = -fabs(_vx);
+                _pos.x = 1024;
+                _vel.x = -fabs(_vel.x);
             }
-            if (_y < 0)
+            if (_pos.y < 0)
             {
-                _y = 0;
-                _vy = (UNIT_RAND() * 0.2 + 0.9) * fabs(_vy);
+                _pos.y = 0;
+                _vel.y = (UNIT_RAND() * 0.2 + 0.9) * fabs(_vel.y);
             }
-            /*
-            else if (_y > 768)
-            {
-                _y = 768;
-                _vy = -(UNIT_RAND() * 0.2 + 0.9) * fabs(_vy);
-            }
-            */
 
             // move
-            _vy -= 1000 * elapsed; // gravity
-
-            _x += _vx * elapsed;
-            _y += _vy * elapsed;
-
+            _vel.y -= 1000 * elapsed;
+            _pos += _vel * elapsed;
         }
 
         virtual void draw()
         {
-            float colR = _colR * fabs(_y - 384.0)/384.0 + 0.2;
-            float colG = _colG * fabs(_y - 768.0)/768.0 + 0.2;
-            float colB = _colB * fabs(_y)/768.0 + 0.2;
-
-            glColor3f(colR, colG, colB);
-
-            glRectf(_x - _halfsize, _y - _halfsize, 
-                    _x + _halfsize, _y + _halfsize);
+            vec3 col(
+                    1.5 * _col.r * fabs(_pos.y - 384.0)/384.0,
+                    1.5 * _col.g * fabs(_pos.y - 768.0)/768.0,
+                    1.5 * _col.b * fabs(_pos.y)/768.0
+                    );
+            glColor3fv(col);
+            glRectfv(_pos - _halfsize, _pos + _halfsize);
         }
 };
 
