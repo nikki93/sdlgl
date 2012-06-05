@@ -17,7 +17,7 @@ class Scene
         static ID _requestID; // if no request, -1
 
         //instance
-        //ID id;
+        //ID _id;
 
     public:
         // --- override -----------------------------------------------------
