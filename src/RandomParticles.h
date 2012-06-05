@@ -12,7 +12,7 @@ class RandomParticles : public Scene
     void start()
     {
         // make many particles :)
-        int n = 20000;
+        int n = 50000;
 
         const float v_x = 400;
         const float hV_x = 0.5 * v_x;

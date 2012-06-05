@@ -11,14 +11,14 @@
 class Box : public Object
 {
     protected:
-        vec2 _pos, _vel;
+        vec2 _pos, _vel, _posPrev;
         float _halfsize;
         vec3 _col;
 
     public:
         // mess :/
         Box(vec2 pos, vec2 vel, float size, vec3 col)
-            : _pos(pos), _vel(vel),
+            : _pos(pos), _vel(vel), _posPrev(pos),
               _halfsize(0.5 * size),
               _col(col)
         {
@@ -45,6 +45,7 @@ class Box : public Object
 
             // move
             _vel.y -= 1000 * elapsed;
+            _posPrev = _pos;
             _pos += _vel * elapsed;
         }
 
@@ -56,7 +57,11 @@ class Box : public Object
                     1.5 * _col.b * fabs(_pos.y)/768.0
                     );
             glColor3fv(col);
-            glRectfv(_pos - _halfsize, _pos + _halfsize);
+
+            glBegin(GL_LINES);
+                glVertex2fv(_posPrev); 
+                glVertex2fv(_pos);
+            glEnd();
         }
 };
 
