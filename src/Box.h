@@ -51,13 +51,15 @@ class Box : public Object
 
         virtual void draw()
         {
+            // color based on vertical position
             vec3 col(
                     1.5 * _col.r * fabs(_pos.y - 384.0)/384.0,
                     1.5 * _col.g * fabs(_pos.y - 768.0)/768.0,
                     1.5 * _col.b * fabs(_pos.y)/768.0
                     );
-            glColor3fv(col);
 
+            // line from previous to current position
+            glColor3fv(col);
             glBegin(GL_LINES);
                 glVertex2fv(_posPrev); 
                 glVertex2fv(_pos);
